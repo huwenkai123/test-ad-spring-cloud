@@ -5,6 +5,7 @@ import com.imooc.ad.ad.exception.AdExpection;
 import com.imooc.ad.constant.Constants;
 import com.imooc.ad.dao.AdPlanRepository;
 import com.imooc.ad.dao.AdUnitRepository;
+import com.imooc.ad.dao.CreativeRepository;
 import com.imooc.ad.dao.unit_condition.AdUnitDistrictRepository;
 import com.imooc.ad.dao.unit_condition.AdUnitItRepository;
 import com.imooc.ad.dao.unit_condition.AdUnitKeywordRepository;
@@ -14,6 +15,7 @@ import com.imooc.ad.entity.AdUnit;
 import com.imooc.ad.entity.unit_condition.AdUnitDistrict;
 import com.imooc.ad.entity.unit_condition.AdUnitIt;
 import com.imooc.ad.entity.unit_condition.AdUnitKeyword;
+import com.imooc.ad.entity.unit_condition.CreativeUnit;
 import com.imooc.ad.service.IAdUnitService;
 import com.imooc.ad.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,21 +28,23 @@ import java.util.stream.Collectors;
 @Service
 public class IAdUnitServiceImpl implements IAdUnitService {
 
-    private final AdPlanRepository planRepository;
+    private AdPlanRepository planRepository;
     private AdUnitRepository unitRepository;
     private AdUnitKeywordRepository unitKeywordRepository;
     private AdUnitItRepository unitItRepository;
     private AdUnitDistrictRepository unitDistrictRepository;
     private CreativeUnitRepository creativeUnitRepository;
+    private CreativeRepository creativeRepository;
 
     @Autowired
-    public IAdUnitServiceImpl(AdPlanRepository planRepository, AdUnitRepository unitRepository, AdUnitKeywordRepository unitKeywordRepository, AdUnitItRepository unitItRepository, AdUnitDistrictRepository unitDistrictRepository, CreativeUnitRepository creativeUnitRepository) {
+    public IAdUnitServiceImpl(AdPlanRepository planRepository, AdUnitRepository unitRepository, AdUnitKeywordRepository unitKeywordRepository, AdUnitItRepository unitItRepository, AdUnitDistrictRepository unitDistrictRepository, CreativeUnitRepository creativeUnitRepository, CreativeRepository creativeRepository) {
         this.planRepository = planRepository;
         this.unitRepository = unitRepository;
         this.unitKeywordRepository = unitKeywordRepository;
         this.unitItRepository = unitItRepository;
         this.unitDistrictRepository = unitDistrictRepository;
         this.creativeUnitRepository = creativeUnitRepository;
+        this.creativeRepository = creativeRepository;
     }
 
     @Override
@@ -126,8 +130,16 @@ public class IAdUnitServiceImpl implements IAdUnitService {
     }
 
     @Override
-    public CreativeUnitResponse createCreativeUnit(CreativeUnitRequest request) {
-        return null;
+    public CreativeUnitResponse createCreativeUnit(CreativeUnitRequest request) throws AdExpection {
+        List<Long> unitIds = request.getUnitItems().stream().map(CreativeUnitRequest.CreativeUnitItem::getUnitId).collect(Collectors.toList());
+        List<Long> createIds = request.getUnitItems().stream().map(CreativeUnitRequest.CreativeUnitItem::getCreativeId).collect(Collectors.toList());
+        if (!(isRelatedCreativeExist(unitIds) && isRelatedCreativeExist(createIds))) {
+            throw new AdExpection(Constants.ErrorMsg.REQUEST_PARAM_ERROR);
+        }
+        List<CreativeUnit> creativeUnits = new ArrayList<>();
+        request.getUnitItems().forEach(i -> creativeUnits.add(new CreativeUnit(i.getCreativeId(), i.getUnitId())));
+        List<Long> ids = creativeUnitRepository.saveAll(creativeUnits).stream().map(CreativeUnit::getId).collect(Collectors.toList());
+        return new CreativeUnitResponse(ids);
     }
 
     private boolean isRelateUnitExist(List<Long> unitIds) {
