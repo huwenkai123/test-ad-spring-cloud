@@ -52,7 +52,7 @@ public class Creative {
     /** 审核状态 */
     @Basic
     @Column(name = "audit_status", nullable = false)
-    private Integer auditStatus;
+    private Integer     auditStatus;
 
     @Basic
     @Column(name = "user_id", nullable = false)
