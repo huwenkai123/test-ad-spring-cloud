@@ -9,6 +9,7 @@
         <module name="ad-common" />
         <module name="ad-eureka" />
         <module name="ad-gateway" />
+        <module name="ad-search" />
         <module name="ad-sponsor" />
       </profile>
     </annotationProcessing>
@@ -21,6 +22,7 @@
       <module name="ad-common" options="-parameters" />
       <module name="ad-eureka" options="-parameters" />
       <module name="ad-gateway" options="-parameters" />
+      <module name="ad-search" options="-parameters" />
       <module name="ad-sponsor" options="-parameters" />
       <module name="adgateway" options="-parameters" />
       <module name="imooc-ad-service" options="-parameters" />
