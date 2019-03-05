@@ -9,4 +9,6 @@ public interface AdUnitRepository extends JpaRepository<AdUnit, Long> {
 
     AdUnit findByPlanIdAndUnitName(Long planId, String unitName);
 
+    List<AdUnit> findAllByUnitStatus(Integer status);
+
 }
